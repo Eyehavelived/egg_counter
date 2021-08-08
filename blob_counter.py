@@ -2,7 +2,6 @@ import numpy as np
 import cv2
 import os
 from math import sqrt
-# from progress_bar import *
 
 def get_circle(gray, param1, param2, minRadius, maxRadius, minDist):
     # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -44,7 +43,7 @@ def get_blobs(img, file_name, x, y, r, output_dir,
     keypoints = detector.detect(img)
 
     # remove blobs outside of the boundary
-    counter = 1
+    counter = 0
     for kp in keypoints:
         kx, ky = kp.pt
         if not round(sqrt((kx-x)**2 + (ky-y)**2)) >= r:
@@ -71,13 +70,11 @@ def blob_method(input_dir, output_dir, h_crop, w_crop, contrast, brightness, cir
                 circ_max, circ_dist, marker_size, min_circularity, min_convex, min_inertia, min_area,
                 is_preview):
 
-    # progress_bar = None
     if is_preview:
         file_list = [os.listdir(input_dir)[0]]
     else:
         file_list = os.listdir(input_dir)
-        # progress_bar = ProgressBar(len(file_list))
-        # progress_bar.mainloop()
+
     out = []
 
     for i in range(len(file_list)):
@@ -97,7 +94,6 @@ def blob_method(input_dir, output_dir, h_crop, w_crop, contrast, brightness, cir
         # Set to greyscale and the pump up contrast
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         output = cv2.convertScaleAbs(img, alpha=contrast, beta=brightness)
-        # cv2.imwrite(f"output/circ_{file_name}", output)
 
         # find the well or plate
         detected_well = get_circle(output, circ_param1, circ_param2, circ_min, circ_max, circ_dist)
@@ -112,11 +108,10 @@ def blob_method(input_dir, output_dir, h_crop, w_crop, contrast, brightness, cir
                              marker_size, min_circularity, min_convex, min_inertia, min_area,
                              is_preview, resize)
         if not is_preview:
-            out.append(f"{file_name},{eggCount}")
-            # progress_bar.increment()
+            out.append(f"{file_name.split('.')[0]},{eggCount}")
 
     if not is_preview:
-        with open("count_results.csv", "w") as file:
+        with open(f"{output_dir}/count_results.csv", "w") as file:
             file.write("\n".join(out))
 
 if __name__ == '__main__':
@@ -147,4 +142,4 @@ if __name__ == '__main__':
     min_area = 500
 
     blob_method(input_dir, output_dir,h_crop, w_crop, contrast, brightness, circ_param1, circ_param2, circ_min, circ_max,
-         circ_dist,marker_size,min_circularity,min_convex,min_inertia,min_area)
+         circ_dist, marker_size, min_circularity, min_convex, min_inertia, min_area, True)
