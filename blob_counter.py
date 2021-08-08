@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import os
 from math import sqrt
+# from progress_bar import *
 
 def get_circle(gray, param1, param2, minRadius, maxRadius, minDist):
     # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -13,7 +14,9 @@ def get_circle(gray, param1, param2, minRadius, maxRadius, minDist):
 
     return np.uint16(np.around(circles))
 
-def get_blobs(img, file_name, x, y, r, output_dir, marker_size, min_circularity, min_convex, min_inertia, min_area):
+def get_blobs(img, file_name, x, y, r, output_dir,
+              marker_size, min_circularity, min_convex, min_inertia, min_area,
+              is_preview, resize_dim=None):
     # Set our filtering parameters
     # Initialize parameter settiing using cv2.SimpleBlobDetector
     params = cv2.SimpleBlobDetector_Params()
@@ -54,14 +57,27 @@ def get_blobs(img, file_name, x, y, r, output_dir, marker_size, min_circularity,
     cv2.putText(img, text, (20, 50),
                 cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 200), 6)
 
-    cv2.imwrite(f"{output_dir}/blobs_{file_name}", img)
+    if is_preview:
+        assert resize_dim is not None
+        cv2.namedWindow("preview")
+        imgS = cv2.resize(img, resize_dim)
+        cv2.imshow("preview", imgS)
+    else:
+        cv2.imwrite(f"{output_dir}/blobs_{file_name}", img)
     return counter
 
 
-def blob_method(input_dir, output_dir, h_crop, w_crop, contrast, brightness, circ_param1, circ_param2, circ_min, circ_max,
-         circ_dist, marker_size, min_circularity, min_convex, min_inertia, min_area):
-    file_list = os.listdir(input_dir)
+def blob_method(input_dir, output_dir, h_crop, w_crop, contrast, brightness, circ_param1, circ_param2, circ_min,
+                circ_max, circ_dist, marker_size, min_circularity, min_convex, min_inertia, min_area,
+                is_preview):
 
+    # progress_bar = None
+    if is_preview:
+        file_list = [os.listdir(input_dir)[0]]
+    else:
+        file_list = os.listdir(input_dir)
+        # progress_bar = ProgressBar(len(file_list))
+        # progress_bar.mainloop()
     out = []
 
     for i in range(len(file_list)):
@@ -75,6 +91,8 @@ def blob_method(input_dir, output_dir, h_crop, w_crop, contrast, brightness, cir
         w = img.shape[1] - w_crop
 
         img = img[y:y + h, x:x + w]
+
+        resize = (int(w/3), int(h/3))
 
         # Set to greyscale and the pump up contrast
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -90,11 +108,16 @@ def blob_method(input_dir, output_dir, h_crop, w_crop, contrast, brightness, cir
         cv2.circle(output, (x, y), r, (0, 0, 255), 5)
 
         # find the eggs using the blob method, save the modified image, and get the count of eggs
-        eggCount = get_blobs(output, file_name, x, y, r, output_dir, marker_size, min_circularity, min_convex, min_inertia, min_area)
-        out.append(f"{file_name},{eggCount}")
+        eggCount = get_blobs(output, file_name, x, y, r, output_dir,
+                             marker_size, min_circularity, min_convex, min_inertia, min_area,
+                             is_preview, resize)
+        if not is_preview:
+            out.append(f"{file_name},{eggCount}")
+            # progress_bar.increment()
 
-    with open("count_results.csv", "w") as file:
-        file.write("\n".join(out))
+    if not is_preview:
+        with open("count_results.csv", "w") as file:
+            file.write("\n".join(out))
 
 if __name__ == '__main__':
     # IO directories

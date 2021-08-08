@@ -10,6 +10,7 @@ class App(tk.Frame):
 
     def __init__(self, master):
         super().__init__(master)
+        self.winfo_toplevel().title("Egg Counter")
 
         # crop amount
         self.crop_cat = tk.Label(text="Crop")
@@ -131,10 +132,10 @@ class App(tk.Frame):
         self.min_inertia = tk.StringVar()
         self.min_area = tk.StringVar()
 
-        self.min_circularity.set("30")
-        self.min_convexity.set("450")
-        self.min_inertia.set("550")
-        self.min_area.set("1000")
+        self.min_circularity.set("0.3")
+        self.min_convexity.set("0.4")
+        self.min_inertia.set("0.05")
+        self.min_area.set("500")
 
         self.min_circularity_entry["textvariable"] = self.min_circularity
         self.min_convexity_entry["textvariable"] = self.min_convexity
@@ -158,13 +159,13 @@ class App(tk.Frame):
         self.batch_button.grid(row=self.current_row, column=1, pady=self.PADDING * 2, padx=self.PADDING * 2)
 
     def preview(self):
-        pass
+        self.run_blob_test(True)
 
     def next_row(self):
         self.current_row += 1
         return self.current_row
 
-    def run_blob_test(self):
+    def run_blob_test(self, is_preview=False):
         # IO directories
         input_dir = 'input'
         output_dir = 'output'
@@ -192,7 +193,11 @@ class App(tk.Frame):
         min_area = int(self.min_area.get())
 
         blob_method(input_dir, output_dir, h_crop, w_crop, contrast, brightness, circ_param1, circ_param2, circ_min,
-                    circ_max, circ_dist, marker_size, min_circularity, min_convex, min_inertia, min_area)
+                    circ_max, circ_dist, marker_size, min_circularity, min_convex, min_inertia, min_area, is_preview)
+
+        if not is_preview:
+            self.quit()
+
 
 if __name__ == '__main__':
     root = tk.Tk()
