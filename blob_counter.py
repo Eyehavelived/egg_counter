@@ -4,7 +4,6 @@ import os
 from math import sqrt
 
 def get_circle(gray, param1, param2, minRadius, maxRadius, minDist):
-    # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     kernel = np.ones((14,14),np.float32)/196
     dst = cv2.filter2D(gray,-1,kernel)
     blur = cv2.medianBlur(gray, 9, dst)
@@ -15,7 +14,8 @@ def get_circle(gray, param1, param2, minRadius, maxRadius, minDist):
 
 def get_blobs(img, file_name, x, y, r, output_dir,
               marker_size, min_circularity, min_convex, min_inertia, min_area,
-              is_preview, resize_dim=None):
+              is_preview, resize_dim=None, include_blobs_outside_plate=False):
+    
     # Set our filtering parameters
     # Initialize parameter settiing using cv2.SimpleBlobDetector
     params = cv2.SimpleBlobDetector_Params()
@@ -42,11 +42,12 @@ def get_blobs(img, file_name, x, y, r, output_dir,
     # Detect blobs
     keypoints = detector.detect(img)
 
-    # remove blobs outside of the boundary
+    # count blobs and exclude blobs outside boundary if necessary
     counter = 0
     for kp in keypoints:
         kx, ky = kp.pt
-        if not round(sqrt((kx-x)**2 + (ky-y)**2)) >= r:
+        within_plate = not round(sqrt((kx-x)**2 + (ky-y)**2)) >= r
+        if within_plate or include_blobs_outside_plate:
             # draw red circles on blobs
             cv2.circle(img, (int(kx), int(ky)), marker_size, (0, 0, 255), 5)
             counter += 1
@@ -66,20 +67,20 @@ def get_blobs(img, file_name, x, y, r, output_dir,
     return counter
 
 
-def blob_method(input_dir, output_dir, h_crop, w_crop, contrast, brightness, circ_param1, circ_param2, circ_min,
+def blob_method(input_directory, output_directory, h_crop, w_crop, contrast, brightness, circ_param1, circ_param2, circ_min,
                 circ_max, circ_dist, marker_size, min_circularity, min_convex, min_inertia, min_area,
-                is_preview):
+                is_preview, include_blobs_outside_plate):
 
     if is_preview:
-        file_list = [os.listdir(input_dir)[0]]
+        file_list = [os.listdir(input_directory)[0]]
     else:
-        file_list = os.listdir(input_dir)
+        file_list = os.listdir(input_directory)
 
     out = []
 
     for i in range(len(file_list)):
         file_name = file_list[i]
-        img = cv2.imread(f'{input_dir}/{file_name}')
+        img = cv2.imread(f'{input_directory}/{file_name}')
 
         # crop the image
         x = w_crop
@@ -104,14 +105,14 @@ def blob_method(input_dir, output_dir, h_crop, w_crop, contrast, brightness, cir
         cv2.circle(output, (x, y), r, (0, 0, 255), 5)
 
         # find the eggs using the blob method, save the modified image, and get the count of eggs
-        eggCount = get_blobs(output, file_name, x, y, r, output_dir,
+        eggCount = get_blobs(output, file_name, x, y, r, output_directory,
                              marker_size, min_circularity, min_convex, min_inertia, min_area,
-                             is_preview, resize)
+                             is_preview, resize, include_blobs_outside_plate)
         if not is_preview:
             out.append(f"{file_name.split('.')[0]},{eggCount}")
 
     if not is_preview:
-        with open(f"{output_dir}/count_results.csv", "w") as file:
+        with open(f"{output_directory}/count_results.csv", "w") as file:
             file.write("\n".join(out))
 
 if __name__ == '__main__':
