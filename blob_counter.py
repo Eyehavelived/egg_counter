@@ -4,7 +4,6 @@ import os
 from math import sqrt
 
 def get_circle(gray, param1, param2, minRadius, maxRadius, minDist):
-    # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     kernel = np.ones((14,14),np.float32)/196
     dst = cv2.filter2D(gray,-1,kernel)
     blur = cv2.medianBlur(gray, 9, dst)
@@ -16,6 +15,7 @@ def get_circle(gray, param1, param2, minRadius, maxRadius, minDist):
 def get_blobs(img, file_name, x, y, r, output_dir,
               marker_size, min_circularity, min_convex, min_inertia, min_area,
               is_preview, resize_dim=None, include_blobs_outside_plate=False):
+    
     # Set our filtering parameters
     # Initialize parameter settiing using cv2.SimpleBlobDetector
     params = cv2.SimpleBlobDetector_Params()

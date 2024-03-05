@@ -24,21 +24,50 @@ To run the script, you will need the following:
     ```pip install numpy```
 - to generate the executable for Windows
     ```pip install pyinstaller```
-- to generate the app file for MacOS
-    Why not use py2exe for generating the executable? Because... this was initially written for a Windows device only and making it available for MacOS came as an afterthought while writing this documentation.
-    ```pip install py2app```
 
 ### 4. Build the executable
 
 #### Windows
 Run `main.py` with pyinstaller's command, using the `--one-file` command to wrap the whole package.
-```pyinstaller main.py --onefile```
+```pyinstaller main.py --hidden-import cv2, --hidden-import numpy, --hidden-import math, --hidden-import os, --onefile```
 
 #### MacOS
-
+At the moment I have no way of generating an app file for MacOS. I attempted to use py2app but I encountered errors that appeared to have been deprecation errors according to answers on StackOverflow.
 
 ## <a name="Running"></a>Running the tool
 If you don't have a copy of the executable file yet (`.exe` or `.app`), you can generate your own following the steps in (Generating the Executable)[#Generate].
+
+### Windows
+You can double-click the `.exe` file to run the executable on Windows. If a prompt appears warning you about the risks of running an executable from an unknown source, click on `See More` or `More Info` (or something along those lines) which should make the `Run Anyway` button appear.
+
+You will need to have an `input` and `output` folder created in the same folder as the executable, with your images pasted in the `input` folder.
+
+### MacOS
+If you already know how to navigate your way with Terminal then skip directly to Step 7
+
+1. Launch Terminal. You can find it in the Applications > Utilities folder
+2. Run `open .`
+3. Run `mkdir egg_counter` to create a folder called egg_counter here
+4. Drag and drop `main.py` and `blob_counter.py` into the egg_counter folder that you have just created
+5. Create a folder named `input` and a folder named `output`, and drag your images into the input folder
+6. Run `cd egg_counter` to enter the folder on Terminal
+7. Run `python3 main.py`
+
+## Preview and Output
+The tool itself is made to be human-readable (parameters like Alpha and Gamma have been translated to Contrast and Brightness), albeit rudimentary in its UI design. 
+
+The `Preview` button will show what happens after the first image has been adjusted for computer vision, had the "blobs" detected, counted, and circled with the count indicated at the top left hand corner. You can click on the Preview button multiple times to judge the differences from your adjustments.
+
+| :warning: NOTE                                                                                                          |
+|:------------------------------------------------------------------------------------------------------------------------|
+| You may want to note down the parameters you have set at this point, as those values are **NOT** stored by the program. |
+
+When you are satisified with the parameters that you have set, click on the `Batch Process` button. The program might seemingly freeze while it is processing the images depending on the number of images it has to process. This is normal and expected. Once it has completed the batch processing, the program will close itself (without warning) and you can review the images in the `output` folder.
+
+A `count_results.csv` file will also be added into the `output` folder, which you can open with a spreadsheet editor program. This will allow you to much more easily fix the mistakes in counting that the tool has made, and access the data for analysis.
+
+## Changes
+An option has been added since [Tahlia's Paper](placeholder_for_link_here): You can now enable/disable a checkbox that decides whether or not to count blobs that have been detected on the outside of the large main circle (usually the base of the plate).
 
 ## For Developers and Scripters
 `main.py` runs the UI that allows users to adjust parameters without having to touch the code and might not be very informative. Most of the script logic can be found within `blob_counter.py`. 

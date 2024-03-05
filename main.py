@@ -1,9 +1,4 @@
 import tkinter as tk
-# from tkinter import _Anchor, _Compound, _Cursor, _ImageSpec, _Relief, _ScreenUnits, _TakeFocusValue, Misc, Variable
-from tkinter import font
-# import tkinter.ttk as ttk
-from typing import Any
-# from typing_extensions import Literal
 from blob_counter import blob_method
 
 class App(tk.Frame):
