@@ -67,7 +67,7 @@ When you are satisified with the parameters that you have set, click on the `Bat
 A `count_results.csv` file will also be added into the `output` folder, which you can open with a spreadsheet editor program. This will allow you to much more easily fix the mistakes in counting that the tool has made, and access the data for analysis.
 
 ## Changes
-An option has been added since [Tahlia's Paper](placeholder_for_link_here): You can now enable/disable a checkbox that decides whether or not to count blobs that have been detected on the outside of the large main circle (usually the base of the plate).
+An option has been added since [Tahlia's Paper](https://pubmed.ncbi.nlm.nih.gov/39106944/): You can now enable/disable a checkbox that decides whether or not to count blobs that have been detected on the outside of the large main circle (usually the base of the plate).
 
 ## For Developers and Scripters
 `main.py` runs the UI that allows users to adjust parameters without having to touch the code and might not be very informative. Most of the script logic can be found within `blob_counter.py`. 
